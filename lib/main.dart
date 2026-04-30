@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'features/input/input_screen.dart';
+import 'features/widgets/input_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
