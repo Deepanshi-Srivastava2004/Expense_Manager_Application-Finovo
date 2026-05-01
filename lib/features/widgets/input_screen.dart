@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import '../../core/utils/input_parser.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -128,7 +129,6 @@ class _InputScreenState extends State<InputScreen> {
                       amountController.clear();
                       noteController.clear();
                       controller.clear();
-                      print(parsed);
                     },
                     child: Text("Add Transaction"),
                   ),
@@ -150,38 +150,57 @@ class _InputScreenState extends State<InputScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              TextField(
-                controller: controller,
-                style: const TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  hintText: "e.g. 500 pizza",
-                  hintStyle: const TextStyle(color: Color(0xFF6B7280)),
-                  filled: true,
-                  fillColor: const Color(0xFF171A21),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
+              // 🔥 ChatGPT-style input
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF171A21),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: controller,
+                        style: const TextStyle(color: Colors.white),
+                        maxLines: null,
+                        decoration: const InputDecoration(
+                          hintText: "e.g. 500 pizza",
+                          hintStyle: TextStyle(color: Color(0xFF6B7280)),
+                          border: InputBorder.none,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    GestureDetector(
+                      onTap: handleSubmit,
+                      child: Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: const BoxDecoration(
+                          color: Color.fromARGB(255, 255, 255, 255),
+                          shape: BoxShape.circle,
+                        ),
+                        child: SvgPicture.asset(
+                          'assets/icons/sendicon.svg',
+                          width: 20,
+                          height: 20,
+                          colorFilter: const ColorFilter.mode(
+                            Colors.black,
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
 
               const SizedBox(height: 16),
 
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF22C55E),
-                  foregroundColor: Colors.black,
-                  minimumSize: const Size(double.infinity, 50),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                onPressed: handleSubmit,
-                child: const Text("Add Transaction"),
-              ),
-              const SizedBox(height: 16),
-
-              // ✅ NOW Expanded is valid
+              // 🔥 Transaction list
               Expanded(
                 child: ValueListenableBuilder(
                   valueListenable: Hive.box('transactions').listenable(),
@@ -196,27 +215,23 @@ class _InputScreenState extends State<InputScreen> {
                     }
 
                     final items = box.values.toList().reversed.toList();
+
                     return ListView.builder(
                       padding: const EdgeInsets.only(top: 8),
                       itemCount: items.length,
                       itemBuilder: (context, index) {
                         final item = items[index];
+
                         final date = item['date'].toString();
                         final displayDate = date.length >= 10
                             ? date.substring(0, 10)
                             : date;
+
                         return Dismissible(
                           key: UniqueKey(),
                           onDismissed: (direction) {
-                            var box = Hive.box('transactions');
-
-                            int actualIndex =
-                                box.length -
-                                1 -
-                                index; // Calculate actual index
-                            box.deleteAt(
-                              actualIndex,
-                            ); // Delete the item from Hive
+                            int actualIndex = box.length - 1 - index;
+                            box.deleteAt(actualIndex);
 
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
@@ -253,7 +268,6 @@ class _InputScreenState extends State<InputScreen> {
                                         fontSize: 12,
                                       ),
                                     ),
-
                                     Text(
                                       displayDate,
                                       style: const TextStyle(
@@ -263,7 +277,6 @@ class _InputScreenState extends State<InputScreen> {
                                     ),
                                   ],
                                 ),
-
                                 Text(
                                   "₹${item['amount']}",
                                   style: const TextStyle(
