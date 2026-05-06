@@ -1,22 +1,5 @@
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(const MyApp());
-}
-
-// Root widget of the app
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: MyNavBar(),
-      debugShowCheckedModeBanner: false,
-    );
-  }
-}
-
 // Navbar widget (Stateful because UI changes on tap)
 class MyNavBar extends StatefulWidget {
   const MyNavBar({super.key});
