@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import '../../core/utils/input_parser.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:finovo/src/data/services/db_service.dart';
+import '../widgets/chat_input.dart';
 
 class InputScreen extends StatefulWidget {
   const InputScreen({super.key});
@@ -10,7 +11,8 @@ class InputScreen extends StatefulWidget {
   State<InputScreen> createState() => _InputScreenState();
 }
 
-class _InputScreenState extends State<InputScreen> {
+class _InputScreenState extends State<InputScreen>
+    with TickerProviderStateMixin {
   final TextEditingController controller = TextEditingController();
   final TextEditingController amountController = TextEditingController();
   final TextEditingController noteController = TextEditingController();
@@ -42,97 +44,127 @@ class _InputScreenState extends State<InputScreen> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
+      transitionAnimationController: AnimationController(
+        vsync: this, // 👈 IMPORTANT
+        duration: const Duration(milliseconds: 400),
+      ),
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setModalState) {
-            return Container(
-              width: double.infinity, //FORCE FULL WIDTH
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                mainAxisSize: MainAxisSize.min, //CONTENT HEIGHT
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  TextField(
-                    controller: amountController,
-                    keyboardType: TextInputType.number,
-                    style: const TextStyle(color: Colors.white),
-                    decoration: const InputDecoration(
-                      labelText: "Amount",
-                      labelStyle: TextStyle(color: Colors.grey),
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(
+                  context,
+                ).viewInsets.bottom, // 👈 keyboard smooth push
+              ),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 👇 Add this (premium feel)
+                    Center(
+                      child: Container(
+                        width: 40,
+                        height: 4,
+                        margin: const EdgeInsets.only(bottom: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.grey,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  TextField(
-                    controller: noteController,
-                    style: const TextStyle(color: Colors.white),
-                    decoration: const InputDecoration(
-                      labelText: "Note",
-                      labelStyle: TextStyle(color: Colors.grey),
+
+                    TextField(
+                      controller: amountController,
+                      keyboardType: TextInputType.number,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: const InputDecoration(
+                        labelText: "Amount",
+                        labelStyle: TextStyle(color: Colors.grey),
+                      ),
                     ),
-                  ),
 
-                  const SizedBox(height: 20),
+                    const SizedBox(height: 8),
 
-                  Wrap(
-                    spacing: 10,
-                    runSpacing: 10,
-                    children: categories.map((category) {
-                      final isSelected = selectedCategory == category;
+                    TextField(
+                      controller: noteController,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: const InputDecoration(
+                        labelText: "Note",
+                        labelStyle: TextStyle(color: Colors.grey),
+                      ),
+                    ),
 
-                      return GestureDetector(
-                        onTap: () {
-                          setModalState(() {
-                            selectedCategory = category;
-                          });
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 10,
-                          ),
-                          decoration: BoxDecoration(
-                            color: isSelected
-                                ? const Color(0xFF22C55E)
-                                : const Color(0xFF171A21),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Text(
-                            category,
-                            style: TextStyle(
-                              color: isSelected ? Colors.black : Colors.white,
+                    const SizedBox(height: 20),
+
+                    Wrap(
+                      spacing: 10,
+                      runSpacing: 10,
+                      children: categories.map((category) {
+                        final isSelected = selectedCategory == category;
+
+                        return GestureDetector(
+                          onTap: () {
+                            setModalState(() {
+                              selectedCategory = category;
+                            });
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 10,
+                            ),
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? const Color(0xFF22C55E)
+                                  : const Color(0xFF171A21),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Text(
+                              category,
+                              style: TextStyle(
+                                color: isSelected ? Colors.black : Colors.white,
+                              ),
                             ),
                           ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      var box = Hive.box('transactions');
+                        );
+                      }).toList(),
+                    ),
 
-                      box.add({
-                        'amount': double.tryParse(amountController.text) ?? 0,
-                        'note': noteController.text,
-                        'category': selectedCategory,
-                        'date': DateTime.now().toString(),
-                      });
+                    const SizedBox(height: 16),
 
-                      Navigator.pop(context);
+                    ElevatedButton(
+                      onPressed: () {
+                        final db = DbService();
 
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            "Added ₹${amountController.text} - ${noteController.text}",
+                        db.addTransaction({
+                          'amount': double.tryParse(amountController.text) ?? 0,
+                          'note': noteController.text,
+                          'category': selectedCategory,
+                          'date': DateTime.now().toString(),
+                        });
+
+                        Navigator.pop(context);
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              "Added ₹${amountController.text} - ${noteController.text}",
+                            ),
                           ),
-                        ),
-                      );
-                      amountController.clear();
-                      noteController.clear();
-                      controller.clear();
-                    },
-                    child: Text("Add Transaction"),
-                  ),
-                ],
+                        );
+
+                        amountController.clear();
+                        noteController.clear();
+                        controller.clear();
+                      },
+                      child: const Text("Add Transaction"),
+                    ),
+                  ],
+                ),
               ),
             );
           },
@@ -151,52 +183,7 @@ class _InputScreenState extends State<InputScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // 🔥 ChatGPT-style input
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF171A21),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: controller,
-                        style: const TextStyle(color: Colors.white),
-                        maxLines: null,
-                        decoration: const InputDecoration(
-                          hintText: "e.g. 500 pizza",
-                          hintStyle: TextStyle(color: Color(0xFF6B7280)),
-                          border: InputBorder.none,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    GestureDetector(
-                      onTap: handleSubmit,
-                      child: Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: const BoxDecoration(
-                          color: Color.fromARGB(255, 255, 255, 255),
-                          shape: BoxShape.circle,
-                        ),
-                        child: SvgPicture.asset(
-                          'assets/icons/sendicon.svg',
-                          width: 20,
-                          height: 20,
-                          colorFilter: const ColorFilter.mode(
-                            Colors.black,
-                            BlendMode.srcIn,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              ChatInput(controller: controller, onSend: handleSubmit),
 
               const SizedBox(height: 16),
 
