@@ -26,7 +26,7 @@ class MyNavBar extends StatefulWidget {
 }
 
 class _MyNavBarState extends State<MyNavBar> {
-  // int _selectedIndex = 0; // 👈 tracks which tab is active
+  int _selectedIndex = 0; // 👈 tracks which tab is active
 
   @override
   Widget build(BuildContext context) {
@@ -49,12 +49,11 @@ class _MyNavBarState extends State<MyNavBar> {
         showUnselectedLabels: false,
 
         type: BottomNavigationBarType.fixed, // 👈 needed for >3 items
-
-        // onTap: (index) {
-        //   setState(() {
-        //     _selectedIndex = index; // 👈 update selected tab
-        //   });
-        // },
+        onTap: (index) {
+          setState(() {
+            _selectedIndex = index; // 👈 update selected tab
+          });
+        },
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
           BottomNavigationBarItem(icon: Icon(Icons.history), label: "History"),
