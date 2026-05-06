@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'src/features/screens/Navbar.dart';
+
+import 'src/features/screens/navbar.dart';
+import 'src/core/theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Hive.initFlutter();
+
   await Hive.openBox('transactions');
 
   runApp(const FinovoApp());
@@ -18,12 +21,11 @@ class FinovoApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Finovo',
+
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor: const Color(0xFF0F1115),
-      ),
-      // home: const InputScreen(),
+
+      theme: AppTheme.darkTheme,
+
       home: const MyNavBar(),
     );
   }
