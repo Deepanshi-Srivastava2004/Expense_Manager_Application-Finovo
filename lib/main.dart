@@ -1,7 +1,6 @@
 import 'features/widgets/Navbar.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'src/features/screens/input_screen.dart';
 // import 'features/widgets/input_screen.dart';
 
 void main() async {
