@@ -34,14 +34,14 @@ class _MyNavBarState extends State<MyNavBar> {
       // 👇 Body changes based on selected tab
       // body: Center(
       //   child: Text(
-      //     "Selected Index: $_selectedIndex",
+      //     // "Selected Index: $_selectedIndex",
       //     style: const TextStyle(fontSize: 22),
       //   ),
       // ),
 
       // 👇 Bottom Navigation Bar
       bottomNavigationBar: BottomNavigationBar(
-        // currentIndex: _selectedIndex, // 👈 tells which item is active
+        currentIndex: _selectedIndex, // 👈 tells which item is active
         selectedItemColor: Colors.green, // 👈 active icon color
         unselectedItemColor: Colors.grey, // 👈 inactive icons
 
