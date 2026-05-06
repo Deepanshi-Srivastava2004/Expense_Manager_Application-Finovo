@@ -32,12 +32,12 @@ class _MyNavBarState extends State<MyNavBar> {
   Widget build(BuildContext context) {
     return Scaffold(
       // 👇 Body changes based on selected tab
-      // body: Center(
-      //   child: Text(
-      //     // "Selected Index: $_selectedIndex",
-      //     style: const TextStyle(fontSize: 22),
-      //   ),
-      // ),
+      body: Center(
+        child: Text(
+          "Selected Index: $_selectedIndex",
+          style: const TextStyle(fontSize: 22),
+        ),
+      ),
 
       // 👇 Bottom Navigation Bar
       bottomNavigationBar: BottomNavigationBar(
